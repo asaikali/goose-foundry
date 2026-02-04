@@ -26,4 +26,8 @@ docker run --rm \
 BINARY="$LINUX_TARGET/release/goosed"
 echo ""
 file "$BINARY"
-ldd "$BINARY" 2>&1 || true
+docker run --rm \
+  --platform linux/amd64 \
+  -v "$(pwd)":/src \
+  ubuntu:22.04 \
+  ldd "/src/$BINARY"

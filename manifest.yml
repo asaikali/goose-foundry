@@ -1,0 +1,12 @@
+applications:
+- name: demo-goosed
+  memory: 512M
+  disk_quota: 256M
+  buildpacks:
+    - binary_buildpack
+  env:
+    GOOSE_SERVER__SECRET_KEY: "change-me-to-a-real-secret"
+    GOOSE_PROVIDER: "openai"
+    GOOSE_MODEL: "gpt-4o"
+    OPENAI_API_KEY: ((OPENAI_API_KEY))
+    GOOSE_DISABLE_KEYRING: "true"
