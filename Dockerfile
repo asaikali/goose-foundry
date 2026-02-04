@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     perl \
     python3 \
     file \
+    libxcb1-dev \
   && rm -rf /var/lib/apt/lists/*
 
 # Rust toolchain setup
