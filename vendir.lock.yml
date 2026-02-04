@@ -1,0 +1,11 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: 'fix: fixed the broken release (#6887) (#6888)'
+      sha: 46c5bbe2347f663b75aaf93bdbd9f59fb03d2e53
+      tags:
+      - v1.22.2
+    path: .
+  path: vendor/goose
+kind: LockConfig
