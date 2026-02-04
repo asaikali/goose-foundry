@@ -1,0 +1,12 @@
+applications:
+- name: goose-web
+  memory: 512M
+  disk_quota: 256M
+  buildpacks:
+    - binary_buildpack
+  env:
+    GOOSE_PROVIDER: "openai"
+    GOOSE_MODEL: "gpt-4o"
+    OPENAI_API_KEY: ((OPENAI_API_KEY))
+    GOOSE_DISABLE_KEYRING: "true"
+    GOOSE_WEB_TOKEN: "change-me-to-a-real-secret"

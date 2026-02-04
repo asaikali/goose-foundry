@@ -1,0 +1,1 @@
+web: ./goose web --host 0.0.0.0 --port $PORT --auth-token $GOOSE_WEB_TOKEN

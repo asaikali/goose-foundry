@@ -4,27 +4,29 @@ set -euo pipefail
 # Simple integration test for goosed on Cloud Foundry.
 # Usage: ./test.sh "optional message"
 #
-# If GOOSED_URL is not set, this script will derive it from manifest.yml
-# and the currently deployed CF app (via `cf app`).
+# If GOOSED_URL is not set, this script will derive it from the goosed
+# manifest and the currently deployed CF app (via `cf app`).
 
 if ! command -v jq >/dev/null 2>&1; then
   echo "Error: jq not found in PATH"
   exit 1
 fi
 
+MANIFEST_PATH="${GOOSED_MANIFEST:-apps/goosed/manifest.yml}"
+
 if [ -z "${GOOSED_URL:-}" ]; then
   if ! command -v cf >/dev/null 2>&1; then
     echo "Error: cf CLI not found in PATH"
     exit 1
   fi
-  if [ ! -f "manifest.yml" ]; then
-    echo "Error: manifest.yml not found in repo root"
+  if [ ! -f "$MANIFEST_PATH" ]; then
+    echo "Error: $MANIFEST_PATH not found"
     exit 1
   fi
 
-  APP_NAME="${GOOSED_APP_NAME:-$(awk '/- name:/{print $3; exit}' manifest.yml | tr -d '\"')}"
+  APP_NAME="${GOOSED_APP_NAME:-$(awk '/- name:/{print $3; exit}' "$MANIFEST_PATH" | tr -d '\"')}"
   if [ -z "$APP_NAME" ]; then
-    echo "Error: Could not determine app name from manifest.yml"
+    echo "Error: Could not determine app name from $MANIFEST_PATH"
     exit 1
   fi
 

@@ -1,14 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
-# Push goosed to Cloud Foundry.
-# Usage: ./push.sh
+# Push goose CLI web to Cloud Foundry.
+# Usage: ./push-goosecli.sh
 # Requires OPENAI_API_KEY to be set in your shell environment.
 #
-# Run ./build-goosed-cf.sh first to cross-compile the Linux x86_64 binary.
+# Run ./build-goose first to cross-compile the Linux x86_64 binaries.
 
-BINARY="target/linux-release/release/goosed"
-STAGE_DIR="cf-app"
+APP_DIR="apps/goosecli"
+BINARY="target/linux-release/release/goose"
+STAGE_DIR="${APP_DIR}/stage"
+MANIFEST="${APP_DIR}/manifest.yml"
+PROCFILE="${APP_DIR}/Procfile"
 
 # --- Sanity checks ---
 
@@ -22,21 +25,22 @@ if [ -z "${OPENAI_API_KEY:-}" ]; then
   exit 1
 fi
 
-if [ ! -f "manifest.yml" ]; then
-  echo "Error: manifest.yml not found in repo root"
+
+if [ ! -f "$MANIFEST" ]; then
+  echo "Error: $MANIFEST not found"
   echo "Add one that sets the binary_buildpack and env vars."
   exit 1
 fi
 
 if [ ! -f "$BINARY" ]; then
   echo "Error: Binary not found at $BINARY"
-  echo "Run ./build-goosed-cf.sh first."
+  echo "Run ./build-goose first."
   exit 1
 fi
 
 if ! file "$BINARY" | grep -q "ELF 64-bit LSB"; then
   echo "Error: $BINARY is not a Linux ELF binary."
-  echo "Rebuild with ./build-goosed-cf.sh (uses Docker)."
+  echo "Rebuild with ./build-goose (uses Docker)."
   exit 1
 fi
 
@@ -45,16 +49,15 @@ fi
 rm -rf "$STAGE_DIR"
 mkdir -p "$STAGE_DIR"
 
-cp "$BINARY" "$STAGE_DIR/goosed"
-chmod +x "$STAGE_DIR/goosed"
+cp "$BINARY" "$STAGE_DIR/goose"
+chmod +x "$STAGE_DIR/goose"
 
-cat > "$STAGE_DIR/Procfile" <<'EOF'
-web: GOOSE_HOST=0.0.0.0 GOOSE_PORT=$PORT ./goosed agent
-EOF
+cp "$PROCFILE" "$STAGE_DIR/Procfile"
 
 echo "Staging directory contents:"
 ls -lah "$STAGE_DIR"
 
 # --- Push ---
 
-cf push -p "$STAGE_DIR" --var OPENAI_API_KEY="$OPENAI_API_KEY"
+cf push -f "$MANIFEST" -p "$STAGE_DIR" \
+  --var OPENAI_API_KEY="$OPENAI_API_KEY"
